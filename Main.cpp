@@ -79,7 +79,8 @@ int main()
 	//fout1.close();
 
 	std::cout << "Second Step: Maximum Binary Matching" << std::endl;
-
+	SigMap BSigToSidMap;
+	BipartiteMath(BSigToSidMap, SidToSigMapTmp, sidToZeroSig);
 
 	std::cout << "Last Step: Assign the remaining Sids" << std::endl;
 

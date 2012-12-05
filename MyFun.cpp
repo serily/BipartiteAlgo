@@ -16,7 +16,7 @@ void Read(std::vector<EDGE> &edges, std::string &strPath)
 }
 
 
-//find the sid only has one sig, store to SidtoOneSigMap
+//First Step: find sids only has one sig, store to SidtoOneSigMap
 void FindSidToOneSig(SidMap &SidToSigMap,SidMap &SidToSigMapTmp, SigMap &SidtoOneSigMap, std::set<unsigned int> &sidToZeroSig)
 {
 	std::set<SIGNATURE> sigSet;
@@ -45,3 +45,16 @@ void FindSidToOneSig(SidMap &SidToSigMap,SidMap &SidToSigMapTmp, SigMap &SidtoOn
 		}
 	}
 }
+
+//Second Step: BipartiteMathing
+ void BipartiteMath(SidMap &BSigToSidMap, SidMap &SidToSigMapTmp, std::set<unsigned int> &sidToZeroSig)
+ {
+	struct EDGEFLAG
+	{
+		unsigned int Sig;
+		unsigned int nSid;
+		unsigned int flag;
+	};
+
+
+ }

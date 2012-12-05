@@ -31,3 +31,4 @@ struct EDGE
 //function declaration
  void Read(std::vector<EDGE> &edges, std::string &strPath);
  void FindSidToOneSig(SidMap &SidToSigMap, SidMap &SidToSigMapTmp, SigMap &SidtoOneSigMap, std::set<unsigned int> &sidToZeroSig);
+ void BipartiteMath(SidMap &BSigToSidMap, SidMap &SidToSigMapTmp, std::set<unsigned int> &sidToZeroSig);
