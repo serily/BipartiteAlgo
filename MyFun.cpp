@@ -14,3 +14,34 @@ void Read(std::vector<EDGE> &edges, std::string &strPath)
 		edges.push_back(edge);
 	}
 }
+
+
+//find the sid only has one sig, store to SidtoOneSigMap
+void FindSidToOneSig(SidMap &SidToSigMap,SidMap &SidToSigMapTmp, SigMap &SidtoOneSigMap, std::set<unsigned int> &sidToZeroSig)
+{
+	std::set<SIGNATURE> sigSet;
+	for (SidMap::iterator it = SidToSigMap.begin(); it != SidToSigMap.end(); ++it)
+	{
+		if (it->second.size() == 1)
+		{
+			unsigned int n = *(it->second.begin());
+			SidtoOneSigMap[n].insert(it->first);
+			sigSet.insert(n);
+			SidToSigMapTmp.erase(it->first);
+		}
+	}
+	for (std::set<SIGNATURE>::iterator i = sigSet.begin(); i != sigSet.end(); ++i)
+	{
+		for (SidMap::iterator j = SidToSigMapTmp.begin(); j != SidToSigMapTmp.end(); ++j)
+		{
+			if (j->second.count(*i) != 0)
+			{
+				j->second.erase(*i);
+			}
+			if (j->second.size() == 0)
+			{
+				sidToZeroSig.insert(j->first);
+			}
+		}
+	}
+}
