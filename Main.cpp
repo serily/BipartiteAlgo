@@ -53,8 +53,12 @@ int main()
 	SigMap SidtoOneSigMap;
 	std::set<unsigned int> sidToZeroSig;
 
+	std::cout << "First Step: Extract sid only to one signature" << std::endl;
 	FindSidToOneSig(SidToSigMap, SidToSigMapTmp, SidtoOneSigMap, sidToZeroSig);
+	std::cout << "Extract sid only to one signature complete! Details in Sid-OneSig_zheng.txt" << std::endl;
+	std::cout << "Now there are " << sidToZeroSig.size() << " Sids have zero signature temporarily." << std::endl;
 
+	//此时可以将那些0个signature的sid分配到已经提取出的signature中，也可留到后面统一处理
 
 	//One sid only to one sig, Sid-OneSig_zheng.txt
 	//std::ofstream fout1("C:\\test\\Sid-OneSig_zheng.txt");
@@ -74,7 +78,10 @@ int main()
 	//fout1 << "共" << nCntSig << "个signature和" << nCntSid << "个sid";
 	//fout1.close();
 
+	std::cout << "Second Step: Maximum Binary Matching" << std::endl;
 
+
+	std::cout << "Last Step: Assign the remaining Sids" << std::endl;
 
 	system("pause");
 	return 0;
