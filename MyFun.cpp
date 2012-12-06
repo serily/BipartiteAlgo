@@ -17,31 +17,54 @@ void Read(std::vector<EDGE> &edges, std::string &strPath)
 
 
 //First Step: find sids only has one sig, store to SidtoOneSigMap
-void FindSidToOneSig(SidMap &SidToSigMap,SidMap &SidToSigMapTmp, SigMap &SidtoOneSigMap, std::set<unsigned int> &sidToZeroSig)
+void InitialFind(SidMap &SidToSigMap,SidMap &SidToSigMapTmp, SigMap &SigToSidMap,
+				 SigMap &FSig_SidMap, std::set<unsigned int> &sidToZeroSig)
 {
 	std::set<SIGNATURE> sigSet;
+	std::set<SNORTID> sidSet;
+
+	//sid only to one sig
 	for (SidMap::iterator it = SidToSigMap.begin(); it != SidToSigMap.end(); ++it)
 	{
 		if (it->second.size() == 1)
 		{
 			unsigned int n = *(it->second.begin());
-			SidtoOneSigMap[n].insert(it->first);
+			FSig_SidMap[n].insert(it->first);
 			sigSet.insert(n);
 			SidToSigMapTmp.erase(it->first);
 		}
 	}
+
+	//sig only to one sid
+	for (SigMap::iterator it = SigToSidMap.begin(); it != SigToSidMap.end(); ++it)
+	{
+		if (it->second.size() == 1)
+		{
+			unsigned int sid = *(it->second.begin());
+			if (sidSet.count(sid) == 0)
+			{
+				FSig_SidMap[it->first].insert(sid);
+				sidSet.insert(sid);
+				SidToSigMapTmp.erase(sid);
+			}
+		}
+	}
+
 	for (std::set<SIGNATURE>::iterator i = sigSet.begin(); i != sigSet.end(); ++i)
 	{
-		for (SidMap::iterator j = SidToSigMapTmp.begin(); j != SidToSigMapTmp.end(); ++j)
+		for (SidMap::iterator j = SidToSigMapTmp.begin(); j != SidToSigMapTmp.end();)
 		{
 			if (j->second.count(*i) != 0)
 			{
 				j->second.erase(*i);
+				if (j->second.size() == 0)
+				{
+					sidToZeroSig.insert(j->first);
+					j = SidToSigMapTmp.erase(j);
+					continue;
+				}
 			}
-			if (j->second.size() == 0)
-			{
-				sidToZeroSig.insert(j->first);
-			}
+			++j;
 		}
 	}
 }

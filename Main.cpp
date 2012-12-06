@@ -50,21 +50,20 @@ int main()
 	//}
 	//fout2.close();
 
-	SigMap SidtoOneSigMap;
+	SigMap FSig_SidMap; 
 	std::set<unsigned int> sidToZeroSig;
 
-	std::cout << "First Step: Extract sid only to one signature" << std::endl;
-	FindSidToOneSig(SidToSigMap, SidToSigMapTmp, SidtoOneSigMap, sidToZeroSig);
-	std::cout << "Extract sid only to one signature complete! Details in Sid-OneSig_zheng.txt" << std::endl;
+	std::cout << "First Step: Extract sid only to one signature and signature only has one sid." << std::endl;
+	InitialFind(SidToSigMap, SidToSigMapTmp, SigToSidMap, FSig_SidMap, sidToZeroSig);
+	std::cout << "Extract sid only to one signature and signature only to one sid complete! Details in FirstStep.txt" << std::endl << std::endl;
 	std::cout << "Now there are " << sidToZeroSig.size() << " Sids have zero signature temporarily." << std::endl;
 
-	//此时可以将那些0个signature的sid分配到已经提取出的signature中，也可留到后面统一处理
 
-	//One sid only to one sig, Sid-OneSig_zheng.txt
-	//std::ofstream fout1("C:\\test\\Sid-OneSig_zheng.txt");
-	//unsigned int nCntSig = SidtoOneSigMap.size(), nCntSid = 0;
+	//One sid only to one sig and one sig only to one sid, FirstStep.txt
+	//std::ofstream fout1("C:\\test\\FirstStep.txt");
+	//unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
 	//fout1 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
-	//for (SigMap::iterator it = SidtoOneSigMap.begin(); it != SidtoOneSigMap.end(); ++it)
+	//for (SigMap::iterator it = FSig_SidMap.begin(); it != FSig_SidMap.end(); ++it)
 	//{
 	//	nCntSid += it->second.size();
 	//	fout1 << it->first << "\t";
@@ -78,7 +77,7 @@ int main()
 	//fout1 << "共" << nCntSig << "个signature和" << nCntSid << "个sid";
 	//fout1.close();
 
-	std::cout << "Second Step: Maximum Binary Matching" << std::endl;
+	std::cout << std::endl << "Second Step: Maximum Binary Matching" << std::endl;
 	SigMap BSigToSidMap;
 	BipartiteMath(BSigToSidMap, SidToSigMapTmp, sidToZeroSig);
 
