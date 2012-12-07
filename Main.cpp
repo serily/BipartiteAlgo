@@ -80,24 +80,26 @@ int main()
 	std::cout << std::endl << "Second Step: Maximum Binary Matching" << std::endl;
 	BipartiteMath(FSig_SidMap, SidToSigMapTmp, sidToZeroSig);
 
-	std::ofstream fout2("C:\\test\\SecondStep.txt");
-	unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
-	fout2 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
-	for (SigMap::iterator it = FSig_SidMap.begin(); it != FSig_SidMap.end(); ++it)
-	{
-		nCntSid += it->second.size();
-		fout2 << it->first << "\t";
-		fout2 << it->second.size() << "\t";
-		for (std::set<SNORTID>::iterator i = it->second.begin(); i != it->second.end(); ++i)
-		{
-			fout2 << *i << " ";
-		}
-		fout2 << std::endl;
-	}
-	fout2 << "共" << nCntSig << "个signature和" << nCntSid << "个sid";
-	fout2.close();
+	//std::ofstream fout2("C:\\test\\SecondStep.txt");
+	//unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
+	//fout2 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
+	//for (SigMap::iterator it = FSig_SidMap.begin(); it != FSig_SidMap.end(); ++it)
+	//{
+	//	nCntSid += it->second.size();
+	//	fout2 << it->first << "\t";
+	//	fout2 << it->second.size() << "\t";
+	//	for (std::set<SNORTID>::iterator i = it->second.begin(); i != it->second.end(); ++i)
+	//	{
+	//		fout2 << *i << " ";
+	//	}
+	//	fout2 << std::endl;
+	//}
+	//fout2 << "共" << nCntSig << "个signature和" << nCntSid << "个sid";
+	//fout2.close();
 
-	std::cout << std::endl << "Last Step: Assign the remaining Sids" << std::endl;
+	std::cout << "Second Step Complete!" << std::endl;
+	std::cout << std::endl << "Last Step: Insert the remaining Sids" << std::endl;
+	InsertRemain(FSig_SidMap, SidToSigMap, sidToZeroSig);
 
 	system("pause");
 	return 0;

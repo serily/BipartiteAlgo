@@ -18,7 +18,7 @@ void Read(std::vector<EDGE> &edges, std::string &strPath)
 
 //First Step: find sids only has one sig, store to SidtoOneSigMap
 void InitialFind(SidMap &SidToSigMap,SidMap &SidToSigMapTmp, SigMap &SigToSidMap,
-				 SigMap &FSig_SidMap, std::set<unsigned int> &sidToZeroSig)
+				 SigMap &FSig_SidMap, std::set<SNORTID> &sidToZeroSig)
 {
 	std::set<SIGNATURE> sigSet;
 	std::set<SNORTID> sidSet;
@@ -115,7 +115,7 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
     }	
 }
 //Second Step: BipartiteMathing
- void BipartiteMath(SidMap &FSig_SidMap, SidMap &SidToSigMapTmp, std::set<unsigned int> &sidToZeroSig)
+ void BipartiteMath(SidMap &FSig_SidMap, SidMap &SidToSigMapTmp, std::set<SNORTID> &sidToZeroSig)
  {
 	size_t lNum = 0;
 	size_t rNum = 0;
@@ -244,4 +244,34 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
 	{
 		sidToZeroSig.insert(it->first);
 	}
+ }
+
+ void InsertRemain(SigMap &FSig_SidMap, SidMap &SidToSigMap, std::set<SNORTID> &sidToZeroSig)
+ {
+	 //把sidToZeroSig的map关系放入sidToZeroSigMap中
+	 std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMap;
+	 std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMapTMP;
+	 for (std::set<SNORTID>::iterator it = sidToZeroSig.begin(); it != sidToZeroSig.end(); ++it)
+	 {
+		 SNORTID sid = (SidToSigMap.find(*it))->first;
+		 std::set<SIGNATURE> sigs = (SidToSigMap.find(*it))->second;
+		 sidToZeroSigMap[sid] = sigs;
+		 sidToZeroSigMapTMP[sid] = sigs;
+	 }
+
+	 //考察余下的所有sid，将这些sid与FSig_SidMap中的sid进行对比，若sid对应的sig不在FSig_SidMap中，则将这个sid分配给该sig,并sidToZeroSigMapTMP中删除
+	 //此sid的对应关系
+	 for ( std::map<SNORTID, std::set<SIGNATURE>>::iterator it = sidToZeroSigMap.begin(); it != sidToZeroSigMap.end(); ++it)
+	 {
+		 for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
+		 {
+			 if (!FSig_SidMap.count(*j))
+			 {
+				 FSig_SidMap[*j].insert(it->first);
+				 sidToZeroSigMapTMP.erase(it->first);
+			 }
+		 }
+	 }
+
+
  }
