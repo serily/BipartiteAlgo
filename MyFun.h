@@ -32,4 +32,4 @@ struct EDGE
  void Read(std::vector<EDGE> &edges, std::string &strPath);
  void InitialFind(SidMap &SidToSigMap, SidMap &SidToSigMapTmp, SigMap &SigToSidMap, SigMap &FSig_SidMap, std::set<SNORTID> &sidToZeroSig);
  void BipartiteMath(SidMap &FSig_SidMap, SidMap &SidToSigMapTmp, std::set<SNORTID> &sidToZeroSig);
- void InsertRemain(SigMap &FSig_SidMap, SidMap &SidToSigMap, std::set<SNORTID> &sidToZeroSig);
+ void InsertRemain(SigMap &FSig_SidMap, SidMap &SidToSigMap, SigMap &SigToSidMap, std::set<SNORTID> &sidToZeroSig);

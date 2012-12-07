@@ -246,17 +246,21 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
 	}
  }
 
- void InsertRemain(SigMap &FSig_SidMap, SidMap &SidToSigMap, std::set<SNORTID> &sidToZeroSig)
+ void InsertRemain(SigMap &FSig_SidMap, SidMap &SidToSigMap, SigMap &SigToSidMap, std::set<SNORTID> &sidToZeroSig)
  {
 	 //把sidToZeroSig的map关系放入sidToZeroSigMap中
 	 std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMap;
 	 std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMapTMP;
+	 std::map<SIGNATURE, std::set<SNORTID>> sigMap;//sig对应sidToZeroSig中的sid的map
 	 for (std::set<SNORTID>::iterator it = sidToZeroSig.begin(); it != sidToZeroSig.end(); ++it)
 	 {
-		 SNORTID sid = (SidToSigMap.find(*it))->first;
 		 std::set<SIGNATURE> sigs = (SidToSigMap.find(*it))->second;
-		 sidToZeroSigMap[sid] = sigs;
-		 sidToZeroSigMapTMP[sid] = sigs;
+		 sidToZeroSigMap[*it] = sigs;
+		 sidToZeroSigMapTMP[*it] = sigs;
+		 for (std::set<SIGNATURE>::iterator j = sigs.begin(); j != sigs.end(); ++j)
+		 {
+			 sigMap[*j].insert(*it);
+		 }
 	 }
 
 	 //考察余下的所有sid，将这些sid与FSig_SidMap中的sid进行对比，若sid对应的sig不在FSig_SidMap中，则将这个sid分配给该sig,并sidToZeroSigMapTMP中删除
@@ -273,5 +277,28 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
 		 }
 	 }
 
-
+	 //首先提取sid对应的那些sig中，具有最少分配sid数的那个sig,考察该sig在sigMap中size是否为1,若为1，则将这个sid分配给这个sig,同时在sidToZeroSigMapTMP中
+	 //删除该sid的对应关系
+	 for (std::map<SNORTID, std::set<SIGNATURE>>::iterator it = sidToZeroSigMapTMP.begin(); it != sidToZeroSigMapTMP.end();)
+	 {
+		 SIGNATURE minSig;
+		 size_t min = SIZE_MAX;
+		 for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
+		 {
+			 size_t nCnt = (FSig_SidMap.find(*j))->second.size();
+			 if (min > nCnt)
+			 {
+				 min = nCnt;
+				 minSig = *j;
+			 }
+		 }
+		 if ((sigMap.find(minSig))->second.size() == 1)//这个sig只对应sidToZeroSigMap中的一个sid,则将这个sid分配给这个sig 
+		 {
+			 FSig_SidMap[minSig].insert(it->first);
+			 sidToZeroSig.erase(it->first);
+			 it = sidToZeroSigMapTMP.erase(it);
+		 }
+		 else
+			++it;
+	 }
  }

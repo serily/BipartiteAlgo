@@ -99,7 +99,7 @@ int main()
 
 	std::cout << "Second Step Complete!" << std::endl;
 	std::cout << std::endl << "Last Step: Insert the remaining Sids" << std::endl;
-	InsertRemain(FSig_SidMap, SidToSigMap, sidToZeroSig);
+	InsertRemain(FSig_SidMap, SidToSigMap, SigToSidMap, sidToZeroSig);
 
 	system("pause");
 	return 0;
