@@ -101,6 +101,24 @@ int main()
 	std::cout << std::endl << "Last Step: Insert the remaining Sids" << std::endl;
 	InsertRemain(FSig_SidMap, SidToSigMap, SigToSidMap, sidToZeroSig);
 
+
+	std::ofstream fout3("C:\\test\\LastStep.txt");
+	unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
+	fout3 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
+	for (SigMap::iterator it = FSig_SidMap.begin(); it != FSig_SidMap.end(); ++it)
+	{
+		nCntSid += it->second.size();
+		fout3 << it->first << "\t";
+		fout3 << it->second.size() << "\t";
+		for (std::set<SNORTID>::iterator i = it->second.begin(); i != it->second.end(); ++i)
+		{
+			fout3 << *i << " ";
+		}
+		fout3 << std::endl;
+	}
+	fout3 << "共" << nCntSig << "个signature和" << nCntSid << "个sid";
+	fout3.close();
+
 	system("pause");
 	return 0;
 }
