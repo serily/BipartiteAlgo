@@ -102,7 +102,7 @@ int main()
 	InsertRemain(FSig_SidMap, SidToSigMap, SigToSidMap, sidToZeroSig);
 	std::cout << std::endl << "Last Step Complete!" << std::endl;
 
-	std::ofstream fout3("C:\\test\\LastStepTest4.txt");
+	std::ofstream fout3("C:\\test\\LastStepTest4.txt");//laststep3.txt是不包含郝伟臣算法的第四步，laststep4.txt包含第四步,所得结果略有不同
 	unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
 	fout3 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
 	for (SigMap::iterator it = FSig_SidMap.begin(); it != FSig_SidMap.end(); ++it)
