@@ -312,20 +312,11 @@ void OptimizeInsert(std::set<SIGNATURE> &sigSet, std::map<SNORTID, std::set<SIGN
 					 size_t secondMin = min;
 					 bool change = false;
 
-					 std::set<SNORTID> sidCntTmp;//当前分配的sig对应的sidToZeroSig中的sid集合
-					 for (std::map<SNORTID, SIGNATURE>::iterator j = mapTmp.begin(); j != mapTmp.end(); ++j)
-					 {
-						 if (j->second == sig)
-						 {
-							 sidCntTmp.insert(j->first);
-						 }
-					 }
-
 					 for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
 					 {
 						 if ((sigTosidCnt).find(*j)->second == min)
 						 {
-							 for (std::set<SNORTID>::iterator h = mapTmpSet[*j].begin(); h != mapTmpSet[*j].end(); ++h)//考察每个sid对应的sig
+							 for (std::set<SNORTID>::iterator h = mapTmpSet[*j].begin(); h != mapTmpSet[*j].end(); ++h)//考察每个sid对应的sidToZeroSig中的sig
 							 {
 								 for (std::set<SIGNATURE>::iterator l = sidToZeroSigMapTMP[*h].begin(); l != sidToZeroSigMapTMP[*h].end();
 									 ++l)
@@ -347,10 +338,15 @@ void OptimizeInsert(std::set<SIGNATURE> &sigSet, std::map<SNORTID, std::set<SIGN
 						 //将sidSecond解绑
 						 SIGNATURE sigSecondTmp = mapTmp[sidSecond];
 						 --(sigTosidCnt.find(sigSecondTmp))->second;
+						 //将sidSecond与sigSecondLevel建立绑定关系
 						 mapTmp[sidSecond] = sigSecondLevel;
 						 ++(sigTosidCnt.find(sigSecondLevel))->second;
+
+						 //将it->first解绑
 						 SIGNATURE sigFirstTmp = mapTmp[it->first];
 						 --(sigTosidCnt.find(sigFirstTmp))->second;
+
+						 //将it->first与sigFirstLevel建立绑定关系
 						 mapTmp[it->first] = sigFirstLevel;
 						 ++(sigTosidCnt.find(sigFirstLevel))->second;
 					 }
