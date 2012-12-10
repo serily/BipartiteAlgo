@@ -256,7 +256,8 @@ void OptimizeInsert(std::set<SIGNATURE> &sigSet, std::map<SNORTID, std::set<SIGN
 		 sigTosidCnt[*it] = nCnt;
 	 }
 
-	 std::map<SNORTID, SIGNATURE> mapTmp;//sig对应sid集合的临时map
+	 std::map<SNORTID, SIGNATURE> mapTmp;//sid对应sig的临时map
+	 SigMap mapTmpSet;//sig对应sid集合的临时map
 	 bool flag = true;//是否进行了调整
 	 while (flag)
 	 {
@@ -276,6 +277,7 @@ void OptimizeInsert(std::set<SIGNATURE> &sigSet, std::map<SNORTID, std::set<SIGN
 					 }
 				 }
 				 mapTmp[it->first] = sig;
+				 mapTmpSet[sig].insert(it->first);
 				 ++(sigTosidCnt.find(sig))->second;
 				 flag = true;
 			 }
@@ -297,13 +299,62 @@ void OptimizeInsert(std::set<SIGNATURE> &sigSet, std::map<SNORTID, std::set<SIGN
 				 {
 					 --(sigTosidCnt.find(assignSig))->second;
 					 mapTmp[it->first] = sig;
+					 mapTmpSet[sig].insert(it->first);
 					 ++(sigTosidCnt.find(sig))->second;
 					 flag = true;
 				 }
-				 //else if ((min + 1) == num)
-				 //{
+				 //考察sig对应的所有sid，这些sid中，sid2对应的具有最少sid个数的sig2,如果这个sig2对应的的sid个数比min小，
+				 //则把sid2分给sig2,然后把sid分给sig。即郝伟臣方法的第四步。不包含这一步的结果存于Laststep3.txt，包含的存于LastStep4.txt中
+				 else if ((min + 1) == num)
+				 {
+					 SIGNATURE sigFirstLevel, sigSecondLevel;
+					 SNORTID sidSecond;
+					 size_t secondMin = min;
+					 bool change = false;
 
-				 //}
+					 std::set<SNORTID> sidCntTmp;//当前分配的sig对应的sidToZeroSig中的sid集合
+					 for (std::map<SNORTID, SIGNATURE>::iterator j = mapTmp.begin(); j != mapTmp.end(); ++j)
+					 {
+						 if (j->second == sig)
+						 {
+							 sidCntTmp.insert(j->first);
+						 }
+					 }
+
+					 for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
+					 {
+						 if ((sigTosidCnt).find(*j)->second == min)
+						 {
+							 for (std::set<SNORTID>::iterator h = mapTmpSet[*j].begin(); h != mapTmpSet[*j].end(); ++h)//考察每个sid对应的sig
+							 {
+								 for (std::set<SIGNATURE>::iterator l = sidToZeroSigMapTMP[*h].begin(); l != sidToZeroSigMapTMP[*h].end();
+									 ++l)
+								 {
+									 if ((sigTosidCnt.find(*l))->second < secondMin)
+									 {
+										 secondMin = (sigTosidCnt.find(*j))->second;
+										 sigFirstLevel = *j;
+										 sigSecondLevel = *l;
+										 sidSecond = *h;
+										 change = true;
+									 }
+								 }
+							 }
+						 }
+					 }
+					 if (change)
+					 {
+						 //将sidSecond解绑
+						 SIGNATURE sigSecondTmp = mapTmp[sidSecond];
+						 --(sigTosidCnt.find(sigSecondTmp))->second;
+						 mapTmp[sidSecond] = sigSecondLevel;
+						 ++(sigTosidCnt.find(sigSecondLevel))->second;
+						 SIGNATURE sigFirstTmp = mapTmp[it->first];
+						 --(sigTosidCnt.find(sigFirstTmp))->second;
+						 mapTmp[it->first] = sigFirstLevel;
+						 ++(sigTosidCnt.find(sigFirstLevel))->second;
+					 }
+				 }
 			 }
 		 }
 	 }
@@ -376,10 +427,6 @@ void OptimizeInsert(std::set<SIGNATURE> &sigSet, std::map<SNORTID, std::set<SIGN
 
  void InsertRemain(SigMap &FSig_SidMap, SidMap &SidToSigMap, SigMap &SigToSidMap, std::set<SNORTID> &sidToZeroSig)
  {
-	 //把sidToZeroSig的map关系放入sidToZeroSigMap中
-	 //std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMap;
-	 //std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMapTMP;
-	 //std::map<SIGNATURE, std::set<SNORTID>> sigMap;//sig对应sidToZeroSig中的sid的map
 	 SidMap sidToZeroSigMap;
 	 SidMap sidToZeroSigMapTMP;
 	 SigMap sigMap;//sig对应sidToZeroSig中的sid的map

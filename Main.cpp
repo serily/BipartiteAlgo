@@ -56,7 +56,7 @@ int main()
 	std::cout << "First Step: Extract sid only to one signature and signature only has one sid." << std::endl;
 	InitialFind(SidToSigMap, SidToSigMapTmp, SigToSidMap, FSig_SidMap, sidToZeroSig);
 	std::cout << "Extract sid only to one signature and signature only to one sid complete! Details in FirstStep.txt" << std::endl << std::endl;
-	std::cout << "Now there are " << sidToZeroSig.size() << " Sids have zero signature temporarily." << std::endl;
+	//std::cout << "Now there are " << sidToZeroSig.size() << " Sids have zero signature temporarily." << std::endl;
 
 
 	//One sid only to one sig and one sig only to one sid, FirstStep.txt
@@ -100,9 +100,9 @@ int main()
 	std::cout << "Second Step Complete!" << std::endl;
 	std::cout << std::endl << "Last Step: Insert the remaining Sids" << std::endl;
 	InsertRemain(FSig_SidMap, SidToSigMap, SigToSidMap, sidToZeroSig);
+	std::cout << std::endl << "Last Step Complete!" << std::endl;
 
-
-	std::ofstream fout3("C:\\test\\LastStepTest3.txt");
+	std::ofstream fout3("C:\\test\\LastStepTest4.txt");
 	unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
 	fout3 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
 	for (SigMap::iterator it = FSig_SidMap.begin(); it != FSig_SidMap.end(); ++it)
