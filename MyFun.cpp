@@ -246,12 +246,143 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
 	}
  }
 
+void OptimizeInsert(std::set<SIGNATURE> &sigSet, std::map<SNORTID, std::set<SIGNATURE>> &sidToZeroSigMapTMP, 
+					SigMap &FSig_SidMap)
+{
+	 std::map<SIGNATURE, size_t> sigTosidCnt;//已经分配的sig对应的sid个数
+	 for (std::set<SIGNATURE>::iterator it = sigSet.begin(); it != sigSet.end(); ++it)
+	 {
+		 size_t nCnt = (FSig_SidMap.find(*it))->second.size();
+		 sigTosidCnt[*it] = nCnt;
+	 }
+
+	 std::map<SNORTID, SIGNATURE> mapTmp;//sig对应sid集合的临时map
+	 bool flag = true;//是否进行了调整
+	 while (flag)
+	 {
+		 flag = false;
+		 for (SidMap::iterator it = sidToZeroSigMapTMP.begin(); it != sidToZeroSigMapTMP.end(); ++it)
+		 {
+			 if (mapTmp.count(it->first) == 0)//若该sid还没有分配signature,就把当前与它相关的具有最少sid数的signature分配给它
+			 {
+				 SIGNATURE sig;
+				 size_t min = SIZE_MAX;
+				 for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
+				 {
+					 if (min > (sigTosidCnt.find(*j))->second)
+					 {
+						 min = (sigTosidCnt.find(*j))->second;
+						 sig = *j;
+					 }
+				 }
+				 mapTmp[it->first] = sig;
+				 ++(sigTosidCnt.find(sig))->second;
+				 flag = true;
+			 }
+			 else//该sid已经分配，则看是否能进行调整
+			 {
+				 SIGNATURE assignSig = mapTmp[it->first];//此sid分配的sig
+				 size_t num = (sigTosidCnt.find(assignSig))->second;//assginSig当前具有的sid个数
+				 size_t min = SIZE_MAX;//该sid对应的当前具有最小个数sid的sig
+				 SIGNATURE sig;//
+				 for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
+				 {
+					 if (min > (sigTosidCnt.find(*j))->second)
+					 {
+						 min = (sigTosidCnt.find(*j))->second;
+						 sig = *j;
+					 }
+				 }
+				 if ((min + 1) < num)//将此sid直接分配给sig，解除它和assginSig的绑定关系
+				 {
+					 --(sigTosidCnt.find(assignSig))->second;
+					 mapTmp[it->first] = sig;
+					 ++(sigTosidCnt.find(sig))->second;
+					 flag = true;
+				 }
+				 //else if ((min + 1) == num)
+				 //{
+
+				 //}
+			 }
+		 }
+	 }
+
+	 //while (flag)
+	 //{
+		// flag = false;
+		// for (std::map<SNORTID, std::set<SIGNATURE>>::iterator i = sidToZeroSigMapTMP.begin(); 
+		//	 i != sidToZeroSigMapTMP.end(); ++i)
+		// {
+		//	 SIGNATURE sig;
+		//	 size_t tmp = mapTmp.count(i->first);
+		//	 bool mark = false;//该sid还未分配
+		//	 if (tmp != 0)
+		//	 {
+		//		 mark = true;//该sid已经考察过了
+		//		 sig = (mapTmp.find(i->first))->second;
+		//	 }
+		//	 else
+		//	 {
+		//		 sig = *(i->second.begin());
+		//	 }
+		//	size_t sigCnt = (sigTosidCnt.find(sig))->second;
+		//	 for (std::set<SIGNATURE>::iterator j = i->second.begin(); j != i->second.end(); ++j)
+		//	 {
+		//		 size_t sigCnt2 = (sigTosidCnt.find(*j))->second;
+		//		 if (mark)
+		//		 {
+		//			 if (sigCnt > (sigCnt2 + 1))
+		//			 {
+		//				 --(sigTosidCnt.find(sig))->second;
+		//				 sig = *j;
+		//			 }
+		//		 }
+		//		 else
+		//		 {
+		//			 if ((sigCnt + 1) > (sigCnt2 + 1))
+		//			 {
+		//				 sig = *j;
+		//			 }
+		//		 }
+		//	 }
+		//	 size_t sigInitCnt = mapTmp.count(i->first);
+		//	 if (sigInitCnt == 0)//该sid还没有分配过
+		//	 {
+		//		 mapTmp[i->first] = sig;
+		//		 ++(sigTosidCnt.find(sig))->second;
+		//		 flag = true;
+		//	 }
+		//	 else
+		//	 {
+		//		 SIGNATURE sigInit = mapTmp[i->first];
+		//		 if (sigInit != sig)//进行了调整
+		//		 {
+		//			 mapTmp[i->first] = sig;
+		//			 ++(sigTosidCnt.find(sig))->second;
+		//			 --(sigTosidCnt.find(sigInit))->second;
+		//			 flag = true;
+		//		 }
+		//	 }
+		// }
+	 //}
+
+	 //将mapTmp中放入FSig_SidMap中
+	 for (std::map<SNORTID, SIGNATURE>::iterator it = mapTmp.begin(); it != mapTmp.end(); ++it)
+	 {
+		 FSig_SidMap[it->second].insert(it->first);
+	 }
+}
+
  void InsertRemain(SigMap &FSig_SidMap, SidMap &SidToSigMap, SigMap &SigToSidMap, std::set<SNORTID> &sidToZeroSig)
  {
 	 //把sidToZeroSig的map关系放入sidToZeroSigMap中
-	 std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMap;
-	 std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMapTMP;
-	 std::map<SIGNATURE, std::set<SNORTID>> sigMap;//sig对应sidToZeroSig中的sid的map
+	 //std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMap;
+	 //std::map<SNORTID, std::set<SIGNATURE>> sidToZeroSigMapTMP;
+	 //std::map<SIGNATURE, std::set<SNORTID>> sigMap;//sig对应sidToZeroSig中的sid的map
+	 SidMap sidToZeroSigMap;
+	 SidMap sidToZeroSigMapTMP;
+	 SigMap sigMap;//sig对应sidToZeroSig中的sid的map
 	 std::set<SIGNATURE> sigSet;//sidToZeroSig中的sig集合
 	 for (std::set<SNORTID>::iterator it = sidToZeroSig.begin(); it != sidToZeroSig.end(); ++it)
 	 {
@@ -267,7 +398,7 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
 
 	 //考察余下的所有sid，将这些sid与FSig_SidMap中的sid进行对比，若sid对应的sig不在FSig_SidMap中，则将这个sid分配给该sig,并sidToZeroSigMapTMP中删除
 	 //此sid的对应关系。这样可以增加sig的个数
-	 for ( std::map<SNORTID, std::set<SIGNATURE>>::iterator it = sidToZeroSigMap.begin(); it != sidToZeroSigMap.end(); ++it)
+	 for ( SidMap::iterator it = sidToZeroSigMap.begin(); it != sidToZeroSigMap.end(); ++it)
 	 {
 		 for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
 		 {
@@ -281,8 +412,8 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
 	 }
 
 	 //首先提取sid对应的那些sig中，具有最少分配sid数的那个sig,考察该sig在sigMap中size是否为1,若为1，则将这个sid分配给这个sig,同时在sidToZeroSigMapTMP中
-	 //删除该sid的对应关系
-	 //for (std::map<SNORTID, std::set<SIGNATURE>>::iterator it = sidToZeroSigMapTMP.begin(); it != sidToZeroSigMapTMP.end();)
+	 //删除该sid的对应关系,加了这部分的结果存于LastStepTest1.txt中，不加这部分的存于LastStep.txt中
+	 //for (SidMap::iterator it = sidToZeroSigMapTMP.begin(); it != sidToZeroSigMapTMP.end();)
 	 //{
 		// SIGNATURE minSig;
 		// size_t min = SIZE_MAX;
@@ -292,7 +423,7 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
 		//	 if (min > nCnt)
 		//	 {
 		//		 min = nCnt;
-		//		 minSig = *j;
+		//		 minSig = *j ;
 		//	 }
 		// }
 		// if ((sigMap.find(minSig))->second.size() == 1)//这个sig只对应sidToZeroSigMap中的一个sid,则将这个sid分配给这个sig 
@@ -305,80 +436,5 @@ void max_match(size_t &lNum, size_t &rNum, std::vector<std::vector<size_t>> &map
 		//	++it;
 	 //}
 
-	 std::map<SIGNATURE, size_t> sigTosidCnt;//已经分配的sig对应的sid个数
-	 for (std::set<SIGNATURE>::iterator it = sigSet.begin(); it != sigSet.end(); ++it)
-	 {
-		 size_t nCnt = (FSig_SidMap.find(*it))->second.size();
-		 sigTosidCnt[*it] = nCnt;
-	 }
-
-	 std::map<SNORTID, SIGNATURE> mapTmp;//sig对应sid集合的临时map
-	 bool flag = true;//是否进行了调整
-	 while (flag)
-	 {
-		 flag = false;
-		 for (std::map<SNORTID, std::set<SIGNATURE>>::iterator i = sidToZeroSigMapTMP.begin(); 
-			 i != sidToZeroSigMapTMP.end(); ++i)
-		 {
-			 SIGNATURE sig;
-			 size_t tmp = mapTmp.count(i->first);
-			 bool mark = false;//该sid还未分配
-			 if (tmp != 0)
-			 {
-				 mark = true;//该sid已经考察过了
-				 sig = (mapTmp.find(i->first))->second;
-			 }
-			 else
-			 {
-				 sig = *(i->second.begin());
-			 }
-
-			size_t sigCnt = (sigTosidCnt.find(sig))->second;
-
-			 for (std::set<SIGNATURE>::iterator j = i->second.begin(); j != i->second.end(); ++j)
-			 {
-				 size_t sigCnt2 = (sigTosidCnt.find(*j))->second;
-				 if (mark)
-				 {
-					 if (sigCnt2 > (sigCnt2 + 1))
-					 {
-						 --(sigTosidCnt.find(sig))->second;
-						 sig = *j;
-					 }
-				 }
-				 else
-				 {
-					 if ((sigCnt + 1) > (sigCnt2 + 1))
-					 {
-						 sig = *j;
-					 }
-				 }
-			 }
-
-			 size_t sigInitCnt = mapTmp.count(i->first);
-			 if (sigInitCnt == 0)//该sid还没有分配过
-			 {
-				 mapTmp[i->first] = sig;
-				 ++(sigTosidCnt.find(sig))->second;
-				 flag = true;
-			 }
-			 else
-			 {
-				 SIGNATURE sigInit = mapTmp[i->first];
-				 if (sigInit != sig)//进行了调整
-				 {
-					 mapTmp[i->first] = sig;
-					 ++(sigTosidCnt.find(sig))->second;
-					 --(sigTosidCnt.find(sigInit))->second;
-					 flag = true;
-				 }
-			 }
-		 }
-	 }
-
-	 //将mapTmp中放入FSig_SidMap中
-	 for (std::map<SNORTID, SIGNATURE>::iterator it = mapTmp.begin(); it != mapTmp.end(); ++it)
-	 {
-		 FSig_SidMap[it->second].insert(it->first);
-	 }
+	 OptimizeInsert(sigSet, sidToZeroSigMapTMP, FSig_SidMap);
  }

@@ -102,7 +102,7 @@ int main()
 	InsertRemain(FSig_SidMap, SidToSigMap, SigToSidMap, sidToZeroSig);
 
 
-	std::ofstream fout3("C:\\test\\LastStep.txt");
+	std::ofstream fout3("C:\\test\\LastStepTest3.txt");
 	unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
 	fout3 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
 	for (SigMap::iterator it = FSig_SidMap.begin(); it != FSig_SidMap.end(); ++it)
