@@ -102,11 +102,13 @@ int main()
 	InsertRemain(FSig_SidMap, SidToSigMap, SigToSidMap, sidToZeroSig);
 	std::cout << std::endl << "Last Step Complete!" << std::endl;
 
-	std::ofstream fout3("C:\\test\\LastStepTest4.txt");//laststep3.txt是不包含郝伟臣算法的第四步，laststep4.txt包含第四步,所得结果略有不同
+	std::ofstream fout3("C:\\test\\LastStepTest3.txt");//laststep3.txt是不包含郝伟臣算法的第四步，laststep4.txt包含第四步,所得结果略有不同
 	unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
+	std::vector<size_t> sidCnt;
 	fout3 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
 	for (SigMap::iterator it = FSig_SidMap.begin(); it != FSig_SidMap.end(); ++it)
 	{
+		sidCnt.push_back(it->second.size());
 		nCntSid += it->second.size();
 		fout3 << it->first << "\t";
 		fout3 << it->second.size() << "\t";
@@ -117,6 +119,27 @@ int main()
 		fout3 << std::endl;
 	}
 	fout3 << "共" << nCntSig << "个signature和" << nCntSid << "个sid";
+	fout3 << std::endl;
+	fout3 << "sid个数" << "\t" << "signature个数" << std::endl;
+	sort(sidCnt.begin(), sidCnt.end());
+	std::vector<size_t>::iterator iPrev = sidCnt.begin();
+	size_t count = 0;
+	for (std::vector<size_t>::iterator iter = sidCnt.begin(); iter != sidCnt.end(); ++iter)
+	{
+		if (iter == sidCnt.end())
+		{
+			fout3 << *iPrev << "\t" << count << std::endl;
+		}
+		++count;
+		if (*iter != *iPrev)
+		{
+			--count;
+			fout3 << *iPrev << "\t" << count << std::endl;
+			iPrev = iter;
+			count = 1;
+		}
+	}
+
 	fout3.close();
 
 	system("pause");

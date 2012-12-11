@@ -20,14 +20,6 @@ struct EDGE
 	unsigned int nSid;
 };
 
-//用于标记一个sid对应一个signature的边
-//struct EDGEFLAG
-//{
-//	unsigned int Sig;
-//	unsigned int nSid;
-//	unsigned int flag;
-//};
-
 //function declaration
  void Read(std::vector<EDGE> &edges, std::string &strPath);
  void InitialFind(SidMap &SidToSigMap, SidMap &SidToSigMapTmp, SigMap &SigToSidMap, SigMap &FSig_SidMap, std::set<SNORTID> &sidToZeroSig);

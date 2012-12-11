@@ -305,52 +305,49 @@ void OptimizeInsert(std::set<SIGNATURE> &sigSet, std::map<SNORTID, std::set<SIGN
 				 }
 				 //考察sig对应的所有sid，这些sid中，sid2对应的具有最少sid个数的sig2,如果这个sig2对应的的sid个数比min小，
 				 //则把sid2分给sig2,然后把sid分给sig。即郝伟臣方法的第四步。不包含这一步的结果存于Laststep3.txt，包含的存于LastStep4.txt中
-				 else if ((min + 1) == num)
-				 {
-					 SIGNATURE sigFirstLevel, sigSecondLevel;
-					 SNORTID sidSecond;
-					 size_t secondMin = min;
-					 bool change = false;
-
-					 for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
-					 {
-						 if ((sigTosidCnt).find(*j)->second == min)
-						 {
-							 for (std::set<SNORTID>::iterator h = mapTmpSet[*j].begin(); h != mapTmpSet[*j].end(); ++h)//考察每个sid对应的sidToZeroSig中的sig
-							 {
-								 for (std::set<SIGNATURE>::iterator l = sidToZeroSigMapTMP[*h].begin(); l != sidToZeroSigMapTMP[*h].end();
-									 ++l)
-								 {
-									 if ((sigTosidCnt.find(*l))->second < secondMin)
-									 {
-										 secondMin = (sigTosidCnt.find(*j))->second;
-										 sigFirstLevel = *j;
-										 sigSecondLevel = *l;
-										 sidSecond = *h;
-										 change = true;
-									 }
-								 }
-							 }
-						 }
-					 }
-					 if (change)
-					 {
-						 //将sidSecond解绑
-						 SIGNATURE sigSecondTmp = mapTmp[sidSecond];
-						 --(sigTosidCnt.find(sigSecondTmp))->second;
-						 //将sidSecond与sigSecondLevel建立绑定关系
-						 mapTmp[sidSecond] = sigSecondLevel;
-						 ++(sigTosidCnt.find(sigSecondLevel))->second;
-
-						 //将it->first解绑
-						 SIGNATURE sigFirstTmp = mapTmp[it->first];
-						 --(sigTosidCnt.find(sigFirstTmp))->second;
-
-						 //将it->first与sigFirstLevel建立绑定关系
-						 mapTmp[it->first] = sigFirstLevel;
-						 ++(sigTosidCnt.find(sigFirstLevel))->second;
-					 }
-				 }
+				 //else if ((min + 1) == num)
+				 //{
+					// SIGNATURE sigFirstLevel, sigSecondLevel;
+					// SNORTID sidSecond;
+					// size_t secondMin = min;
+					// bool change = false;
+					// for (std::set<SIGNATURE>::iterator j = it->second.begin(); j != it->second.end(); ++j)
+					// {
+					//	 if ((sigTosidCnt).find(*j)->second == min)
+					//	 {
+					//		 for (std::set<SNORTID>::iterator h = mapTmpSet[*j].begin(); h != mapTmpSet[*j].end(); ++h)//考察每个sid对应的sidToZeroSig中的sig
+					//		 {
+					//			 for (std::set<SIGNATURE>::iterator l = sidToZeroSigMapTMP[*h].begin(); l != sidToZeroSigMapTMP[*h].end();
+					//				 ++l)
+					//			 {
+					//				 if ((sigTosidCnt.find(*l))->second < secondMin)
+					//				 {
+					//					 secondMin = (sigTosidCnt.find(*j))->second;
+					//					 sigFirstLevel = *j;
+					//					 sigSecondLevel = *l;
+					//					 sidSecond = *h;
+					//					 change = true;
+					//				 }
+					//			 }
+					//		 }
+					//	 }
+					// }
+					// if (change)
+					// {
+					//	 //将sidSecond解绑
+					//	 SIGNATURE sigSecondTmp = mapTmp[sidSecond];
+					//	 --(sigTosidCnt.find(sigSecondTmp))->second;
+					//	 //将sidSecond与sigSecondLevel建立绑定关系
+					//	 mapTmp[sidSecond] = sigSecondLevel;
+					//	 ++(sigTosidCnt.find(sigSecondLevel))->second;
+					//	 //将it->first解绑
+					//	 SIGNATURE sigFirstTmp = mapTmp[it->first];
+					//	 --(sigTosidCnt.find(sigFirstTmp))->second;
+					//	 //将it->first与sigFirstLevel建立绑定关系
+					//	 mapTmp[it->first] = sigFirstLevel;
+					//	 ++(sigTosidCnt.find(sigFirstLevel))->second;
+					// }
+				 //}
 			 }
 		 }
 	 }
