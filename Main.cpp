@@ -3,7 +3,9 @@
 
 int main()
 {
-	std::string strPath = "C:\\test\\Edges.txt";
+	//std::string strPath = "C:\\test\\Edges.txt";//Snort规则
+	std::string strPath = "C:\\test\\Content_Pcre\\Content_Pcre_Edges.txt";//Snort规则:包含content和Pcre
+	//std::string strPath = "C:\\test\\URLTest\\URLEdges.txt";//URL规则
 	std::vector<EDGE> edges;
 	Read(edges, strPath);
 	std::cout << "Read Edges Complete!" << std::endl;
@@ -102,7 +104,9 @@ int main()
 	InsertRemain(FSig_SidMap, SidToSigMap, SigToSidMap, sidToZeroSig);
 	std::cout << std::endl << "Last Step Complete!" << std::endl;
 
-	std::ofstream fout3("C:\\test\\LastStepTest3.txt");//laststep3.txt是不包含郝伟臣算法的第四步，laststep4.txt包含第四步,所得结果略有不同
+	//std::ofstream fout3("C:\\test\\LastStepTest3.txt");//laststep3.txt是不包含郝伟臣算法的第四步。content和pcre
+	std::ofstream fout3("C:\\test\\Content_Pcre\\LastStepTest3.txt");//laststep3.txt是不包含郝伟臣算法的第四步，laststep4.txt包含第四步,所得结果略有不同
+	//std::ofstream fout3("C:\\test\\URLTest\\URLLastStepTest3.txt");//laststep3.txt是不包含郝伟臣算法的第四步，laststep4.txt包含第四步,所得结果略有不同
 	unsigned int nCntSig = FSig_SidMap.size(), nCntSid = 0;
 	std::vector<size_t> sidCnt;
 	fout3 << "Signature" << "\t" << "SidCounts" << "\t" << "Sids" << std::endl;
@@ -124,12 +128,9 @@ int main()
 	sort(sidCnt.begin(), sidCnt.end());
 	std::vector<size_t>::iterator iPrev = sidCnt.begin();
 	size_t count = 0;
-	for (std::vector<size_t>::iterator iter = sidCnt.begin(); iter != sidCnt.end(); ++iter)
+	std::vector<size_t>::iterator iter = sidCnt.begin();
+	for (; iter != sidCnt.end(); ++iter)
 	{
-		if (iter == sidCnt.end())
-		{
-			fout3 << *iPrev << "\t" << count << std::endl;
-		}
 		++count;
 		if (*iter != *iPrev)
 		{
@@ -138,6 +139,10 @@ int main()
 			iPrev = iter;
 			count = 1;
 		}
+	}
+	if (iter == sidCnt.end())
+	{
+		fout3 << *iPrev << "\t" << count << std::endl;
 	}
 
 	fout3.close();
